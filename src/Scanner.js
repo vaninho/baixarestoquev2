@@ -7,7 +7,7 @@ class Scanner extends React.Component {
         super(props)
 
         this.state = {
-            isOpened: true,
+            isOpened: false,
 
         }
         this.html5Qrcode = new Html5Qrcode('reader')
@@ -18,7 +18,8 @@ class Scanner extends React.Component {
     handleCloseBarCodeScanner() {
         this.setState({ isOpened: false })
         this.html5Qrcode.clear()
-    }
+        this.html5Qrcode.close()
+    }   
 
 
     handleOpenBarCodeScanner() {
@@ -27,6 +28,8 @@ class Scanner extends React.Component {
 
         let qrCodeSucessCallback = (decodedText, decodedResult) => {
             //TODO give the value to APP
+            console.log('success '+decodedText)
+            console.log(decodedResult)
             this.handleCloseBarCodeScanner();
         }
 
@@ -35,7 +38,7 @@ class Scanner extends React.Component {
                 const cameraId = devices[0].id;
                 console.log(cameraId)
                 //TODO change the 
-                this.html5Qrcode.start(cameraId, { fps: 50, qrbox: 250, format: Html5QrcodeSupportedFormats.EAN_13 },
+                this.html5Qrcode.start(cameraId, { fps: 30, qrbox: {width: 300, height: 120}, format: Html5QrcodeSupportedFormats.EAN_13 },
                     qrCodeSucessCallback, (errorMessage) => { })
             }
         }).catch(error => { console.log(error) })
@@ -44,7 +47,7 @@ class Scanner extends React.Component {
     render() {
         return (
             <>
-                <button type="button" onClick={this.handleCloseBarCodeScanner} style={{display: !this.state.isOpened ? 'inline' : 'none'}}>Cancelar</button>
+                <button type="button" onClick={this.handleCloseBarCodeScanner} style={{display: this.state.isOpened ? 'inline' : 'none'}}>Cancelar</button>
                 <button type="button" onClick={this.handleOpenBarCodeScanner}>Ler código de barras</button>
             </>
         )
