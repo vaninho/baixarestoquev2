@@ -4,48 +4,54 @@ import Scanner from "./Scanner";
 function App() {
 
   const [productInput, setProductInput] = React.useState('')
+  const [barCodeInput, setBarCodeInput] = React.useState('')
 
   function handleSubmit(event) {
     event.preventDefault()
-    console.log(`Cod: ${event.target.elements.barCodeInput.value} - Produto: ${productInput} - Quantidade: ${event.target.elements.quantityInput.value}`)
+    console.log(`Cod: ${barCodeInput} - Produto: ${productInput} - Quantidade: ${event.target.elements.quantityInput.value}`)
     handleReset(event)
   }
 
-  function handleFakeScanClick() {
-
+  function handleFakeScanClick(event) {
+    console.log(event)
+    console.log('fake')
+    document.getElementById('barCodeInput').value=123
   }
 
   function handleReset(event) {
     setProductInput('')
-    event.target.elements.barCodeInput.value = ''
+    setBarCodeInput('')
     event.target.elements.quantityInput.value = ''
   }
 
-  function handleBarCodeInput(event) {
+  function handleBarCodeInputBlur(event) {
     if (event.target.value === '123') {
-      setProductInput('Teste')
+      setProductInput('Test')
     } else {
       setProductInput('')
     }
+  }
+  function handleBarCodeInputChange(event) {
+    setBarCodeInput(event.target.value)
   }
 
   return (
     <form onSubmit={handleSubmit}>
       <div>
-        <Scanner />
+        <Scanner output={setBarCodeInput}/>
         <button type="button" onClick={handleFakeScanClick}>Fake Scan</button>
       </div>
       <div>
         <label htmlFor="barCodeInput">
           Código de barras:
         </label>
-        <input type="text" id="barCodeInput" onBlur={handleBarCodeInput} />
+        <input type="text" id="barCodeInput" onBlur={handleBarCodeInputBlur} onChange={handleBarCodeInputChange} value={barCodeInput}/>
       </div>
       <div>
         <label htmlFor="productInput">
           Produto:
         </label>
-        <input type="text" id="productInput" disabled={true} value={productInput} />
+        <input type="text" id="productInput" readOnly={true} value={productInput} />
       </div>
       <div>
         <label htmlFor="quantityInput">

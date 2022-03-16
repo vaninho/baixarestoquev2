@@ -10,6 +10,7 @@ class Scanner extends React.Component {
             isOpened: false,
 
         }
+        this.output = props.output;
         this.html5Qrcode = new Html5Qrcode('reader')
         this.handleOpenBarCodeScanner = this.handleOpenBarCodeScanner.bind(this)
         this.handleCloseBarCodeScanner = this.handleCloseBarCodeScanner.bind(this)
@@ -17,9 +18,10 @@ class Scanner extends React.Component {
 
     handleCloseBarCodeScanner() {
         this.setState({ isOpened: false })
-        this.html5Qrcode.clear()
-        this.html5Qrcode.close()
-    }   
+        this.html5Qrcode.stop().then((ignore) => {
+        }).catch((err) => {
+        });
+    }
 
 
     handleOpenBarCodeScanner() {
@@ -27,18 +29,16 @@ class Scanner extends React.Component {
         this.setState({ isOpened: true });
 
         let qrCodeSucessCallback = (decodedText, decodedResult) => {
-            //TODO give the value to APP
-            console.log('success '+decodedText)
-            console.log(decodedResult)
             this.handleCloseBarCodeScanner();
+            this.output(decodedText)
         }
 
         Html5Qrcode.getCameras().then(devices => {
             if (devices && devices.length) {
-                const cameraId = devices[0].id;
+                const cameraId = devices[1].id;
                 console.log(cameraId)
                 //TODO change the 
-                this.html5Qrcode.start(cameraId, { fps: 30, qrbox: {width: 300, height: 120}, format: Html5QrcodeSupportedFormats.EAN_13 },
+                this.html5Qrcode.start(cameraId, { fps: 10, qrbox: { width: 200, height: 100 }, format: Html5QrcodeSupportedFormats.EAN_13 },
                     qrCodeSucessCallback, (errorMessage) => { })
             }
         }).catch(error => { console.log(error) })
@@ -47,7 +47,7 @@ class Scanner extends React.Component {
     render() {
         return (
             <>
-                <button type="button" onClick={this.handleCloseBarCodeScanner} style={{display: this.state.isOpened ? 'inline' : 'none'}}>Cancelar</button>
+                <button type="button" onClick={this.handleCloseBarCodeScanner} style={{ display: this.state.isOpened ? 'inline' : 'none' }}>Cancelar</button>
                 <button type="button" onClick={this.handleOpenBarCodeScanner}>Ler código de barras</button>
             </>
         )
