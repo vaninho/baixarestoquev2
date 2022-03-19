@@ -48,7 +48,7 @@ class Scanner extends React.Component {
         return (
             <>
                 <button type="button" onClick={this.handleCloseBarCodeScanner} style={{ display: this.state.isOpened ? 'inline' : 'none' }}>Cancelar</button>
-                <button type="button" onClick={this.handleOpenBarCodeScanner}>Ler código de barras</button>
+                <button type="button" onClick={this.handleOpenBarCodeScanner} className="btn btn-outline-secondary" style={{margin: '5px'}}>Ler código de barras</button>
             </>
         )
     }

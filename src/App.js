@@ -1,74 +1,78 @@
 import React from "react";
 import Scanner from "./Scanner";
+import InputText from "./InputText";
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 function App() {
 
-  const [productInput, setProductInput] = React.useState('')
-  const [barCodeInput, setBarCodeInput] = React.useState('')
+  const initialize = { barCodeInput: '', quantityInput: '', productInput: '' }
+  const [inputValue, setInputValue] = React.useState(initialize)
+  const { barCodeInput, quantityInput, productInput } = inputValue;
+
+  const handleInputChange = (event) => {
+    const { name, value } = event.target;
+    setInputValue((prev) => ({
+      ...prev,
+      [name]: value
+    }))
+
+  }
 
   function handleSubmit(event) {
     event.preventDefault()
-    console.log(`Cod: ${barCodeInput} - Produto: ${productInput} - Quantidade: ${event.target.elements.quantityInput.value}`)
+    console.log(`Cod: ${barCodeInput} - Produto: ${productInput} - Quantidade: ${quantityInput}`)
     handleReset(event)
   }
 
   function handleFakeScanClick(event) {
-    console.log(event)
-    console.log('fake')
-    document.getElementById('barCodeInput').value = 123
+    changeInputByScanner('9788576842316')
   }
 
   function handleReset(event) {
-    setProductInput('')
-    setBarCodeInput('')
-    event.target.elements.quantityInput.value = ''
+    setInputValue(initialize)
   }
 
   function handleBarCodeInputBlur(event) {
-    if (event.target.value === '123') {
-      setProductInput('Test')
-    } else {
-      setProductInput('')
+    let value = ''
+    switch (event.target.value) {
+      case '123':
+        value = 'Produto teste'
+        break;
+      case '9788576842316':
+        value = 'Livro House'
+        break;
     }
-  }
-  function handleBarCodeInputChange(event) {
-    setBarCodeInput(event.target.value)
+    setInputValue((prev) => ({
+      ...prev,
+      productInput: value
+    }))
   }
 
-  //TODO Refatorar inputs
-  function InputText(id, value) {
-    return (<div>
-      <div>
-        <label htmlFor="barCodeInput" className="form-label">
-          Código de barras:
-        </label>
-        <input type="text" id={id} onBlur={handleBarCodeInputBlur} onChange={handleBarCodeInputChange} value={value} className='form-control' />
-      </div>
-    </div>)
+  const changeInputByScanner = (p) => {
+    setInputValue((prev) => ({
+      ...prev,
+      barCodeInput: p
+    }))
+    document.getElementById('barCodeInput').focus()
+
   }
 
   return (
     <form onSubmit={handleSubmit}>
       <div>
-        <Scanner output={setBarCodeInput} />
-        <button type="button" onClick={handleFakeScanClick}>Fake Scan</button>
+        <Scanner output={changeInputByScanner} />
+        <button type="button" onClick={handleFakeScanClick} className="btn btn-outline-secondary">Fake Scan</button>
       </div>
-      <InputText id='barCodeInput' value={barCodeInput} />
+      <InputText label='Código de barras:' id='barCodeInput' name='barCodeInput' value={barCodeInput} onChange={handleInputChange} onBlur={handleBarCodeInputBlur} />
       <div>
-        <label htmlFor="productInput">
+        <label htmlFor="productInput" className="form-label">
           Produto:
         </label>
-        <input type="text" id="productInput" readOnly={true} value={productInput} />
+        <input type="text" id="productInput" readOnly={true} value={productInput} className='form-control' />
       </div>
-      <div>
-        <label htmlFor="quantityInput">
-          Quantidade:
-        </label>
-        <input type="text" id="quantityInput" />
-      </div>
-      <button type="submit" className="btn btn-primary">Cadastrar</button>
-      <button type="reset" className="btn btn-outline-secondary" onClick={handleReset}>Limpar</button>
+      <InputText label='Quantidade:' id='quantityInput' name='quantityInput' value={quantityInput} onChange={handleInputChange} />
+      <button type="submit" className="btn btn-primary" style={{ margin: '5px' }}>Cadastrar</button>
+      <button type="reset" className="btn btn-outline-secondary" onClick={handleReset} style={{ margin: '5px' }}>Limpar</button>
     </form>
   );
 }
