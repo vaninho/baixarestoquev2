@@ -34,11 +34,11 @@ async function connect() {
 
 async function getProductByBarCode(id) {
     const client = await connect();
-    const sql = "SELECT DES_PRODUTO FROM PRODUTO WHERE COD_BARRA = $1";
+    const sql = "SELECT DES_PRODUTO, VLR_VENDA1 FROM PRODUTO WHERE COD_BARRA = $1";
     const values = [id];
     const result = await client.query(sql, values);
     if (result.rowCount > 0) {
-        return result.rows[0].des_produto;
+        return { [desc]: result.rows[0].des_produto, [value1]: result.rows[0].vlr_venda1 }
     }
     return false;
 }
@@ -56,15 +56,11 @@ function writeFile(type, barCode, quantity) {
     fs.appendFile('D:/ArquivosLogtecRequisicoes/' + type + '.txt', line, (err) => { if (err) console.log('erro: ' + err + data) });
 }
 
-
-// This displays message that the server running and listening to specified port
-// app.listen(port, () => console.log(`Listening on port ${port}`)); //Line 6
-
 app.get('/product/:id', (req, res) => {
     console.log('oi')
-    const descProduto = getProductByBarCode(req.params.id);
-    descProduto.then(r => {
-        res.send({ found: r ? true : false, desc: r });
+    const result = getProductByBarCode(req.params.id);
+    result.then(r => {
+        res.send({ found: r ? true : false, desc: r, value: value1 });
     }).catch(e => console.log(e));
 
 });

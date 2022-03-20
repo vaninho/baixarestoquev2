@@ -1,5 +1,5 @@
 import 'bootstrap/dist/css/bootstrap.min.css';
-import React from "react";
+import React, { useState } from "react";
 import axios from "axios";
 import InputImageRadio from './UI/InputImageRadio';
 import InputText from "./UI/InputText";
@@ -8,8 +8,9 @@ import Scanner from "./UI/Scanner";
 function App() {
 
   const initialize = { barCodeInput: '', quantityInput: '1', productInput: '', requisitionRadio: 'bakery' }
-  const [inputValue, setInputValue] = React.useState(initialize)
-  const { barCodeInput, quantityInput, productInput, requisitionRadio } = inputValue;
+  const [inputValue, setInputValue] = useState(initialize)
+  const { barCodeInput, quantityInput, productInput, requisitionRadio } = inputValue
+  const [price, setPrice] = useState('')
 
   const handleInputChange = (event) => {
     const { name, value } = event.target;
@@ -50,16 +51,31 @@ function App() {
           ...prev,
           productInput: response.data.desc
         }))
+
+        if(event.target.value.length <=4) {
+          setInputValue((prev) => ({
+            ...prev,
+            quantityInput: Math.ceil(response.data.value / price)
+          }))
+        }
+
       } else {
         alert('Produto nao encontrado, verificar codigo de barras');
       }
     });
   }
 
+
+  //LAYOUT 3
   const changeInputByScanner = (p) => {
+    let value = p;
+    if(p.startsWith('2')) {
+      value = parseInt(p.substring(1, 5))+''
+      setPrice(parseInt(p.substring(6,11))+'')
+    }
     setInputValue((prev) => ({
       ...prev,
-      barCodeInput: p
+      barCodeInput: value
     }))
     document.getElementById('barCodeInput').focus()
 
