@@ -9,6 +9,19 @@ function App() {
   const initialize = { barCodeInput: '', quantityInput: '', productInput: '', requisitionRadio: 'bakery' }
   const [inputValue, setInputValue] = React.useState(initialize)
   const { barCodeInput, quantityInput, productInput, requisitionRadio } = inputValue;
+  const [data, setData] = React.useState(null)
+
+  React.useEffect(() => {
+    fetch("/api")
+      .then((res) => {
+        console.log(res)
+        res.json()
+      })
+      .then((data) => {
+        setData(data.message)
+
+      });
+  }, []);
 
   const handleInputChange = (event) => {
     const { name, value } = event.target;
@@ -72,14 +85,15 @@ function App() {
         <input type="text" id="productInput" readOnly={true} value={productInput} className='form-control' />
       </div>
       <InputText label='Quantidade:' id='quantityInput' name='quantityInput' value={quantityInput} onChange={handleInputChange} />
-        Tipo de requisição:
+      Tipo de requisição:
       <div className='type-requisition'>
-        <InputImageRadio id='bakeryRadio' name='requisitionRadio' value='bakery' img='padaria.png' text='Produção Padaria' checked={requisitionRadio === 'bakery'} onChange={handleInputChange}/>
-        <InputImageRadio id='reductRadio' name='requisitionRadio' value='break' img='quebra.png' text='Quebra' checked={requisitionRadio === 'break'} onChange={handleInputChange}/>
-        <InputImageRadio id='cleaningRadio' name='requisitionRadio' value='cleaning' img='limpeza.png' text='Limpeza' checked={requisitionRadio === 'cleaning'} onChange={handleInputChange}/>
+        <InputImageRadio id='bakeryRadio' name='requisitionRadio' value='bakery' img='padaria.png' text='Produção Padaria' checked={requisitionRadio === 'bakery'} onChange={handleInputChange} />
+        <InputImageRadio id='reductRadio' name='requisitionRadio' value='break' img='quebra.png' text='Quebra' checked={requisitionRadio === 'break'} onChange={handleInputChange} />
+        <InputImageRadio id='cleaningRadio' name='requisitionRadio' value='cleaning' img='limpeza.png' text='Limpeza' checked={requisitionRadio === 'cleaning'} onChange={handleInputChange} />
       </div>
       <button type="submit" className="btn btn-primary" style={{ margin: '5px' }}>Cadastrar</button>
       <button type="reset" className="btn btn-outline-secondary" onClick={handleReset} style={{ margin: '5px' }}>Limpar</button>
+      <p>{!data ? 'Loading..' : data}</p>
     </form>
   );
 }
