@@ -3,6 +3,8 @@
 # dependencies
 /client/node_modules
 /server/node_modules
+/server/selfsigned.crt
+/server/selfsigned.key
 /.pnp
 .pnp.js
 
@@ -10,7 +12,7 @@
 /coverage
 
 # production
-/build
+client/build
 
 # misc
 .DS_Store

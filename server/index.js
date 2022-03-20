@@ -1,14 +1,94 @@
-const express = require("express");
-
-const PORT = process.env.PORT || 3001;
-
+const express = require('express');
+const fs = require('fs');
+const path = require('path');
 const app = express();
+const https = require('https');
+app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
+const port = process.env.PORT || 3001;
+const BLANK_SPACES = '       ';
 
-app.get("/api", (req, res) => {
-    console.log('Entramos!')
-    res.json({ message: "Hello from server!" })
-})
+app.use(express.static(path.resolve(__dirname, '../client/build')));
 
-app.listen(PORT, () => {
-    console.log(`Server listening on ${PORT}`);
+async function connect() {
+    const connectionString = 'postgresql://postgres:******@10.0.0.27:5432/LOGTEC';
+    if (global.connection)
+        return global.connection;
+
+    const { Pool } = require('pg');
+    const pool = new Pool({
+        connectionString: connectionString
+    });
+
+    //apenas testando a conexão
+    const client = await pool.connect();
+    console.log("PostgreSQL working!");
+
+    const res = await client.query('SELECT NOW()');
+    console.log(res.rows[0]);
+    client.release();
+
+    global.connection = pool;
+    return pool.connect();
+}
+
+async function getProductByBarCode(id) {
+    const client = await connect();
+    const sql = "SELECT DES_PRODUTO FROM PRODUTO WHERE COD_BARRA = $1";
+    const values = [id];
+    const result = await client.query(sql, values);
+    if (result.rowCount > 0) {
+        return result.rows[0].des_produto;
+    }
+    return false;
+}
+
+function writeFile(type, barCode, quantity) {
+    var line = barCode;
+    for (var i = barCode.length; i < 13; i++) {
+        line = ' ' + line;
+    }
+    line = line + BLANK_SPACES;
+    for (var i = Math.trunc(quantity) + ''.length; i < 6; i++) {
+        line = line + '0';
+    }
+    line = line + quantity + '\r\n';
+    fs.appendFile('D:/ArquivosLogtecRequisicoes/' + type + '.txt', line, (err) => { if (err) console.log('erro: ' + err + data) });
+}
+
+
+// This displays message that the server running and listening to specified port
+// app.listen(port, () => console.log(`Listening on port ${port}`)); //Line 6
+
+app.get('/product/:id', (req, res) => {
+    console.log('oi')
+    const descProduto = getProductByBarCode(req.params.id);
+    descProduto.then(r => {
+        res.send({ found: r ? true : false, desc: r });
+    }).catch(e => console.log(e));
+
 });
+
+app.post('/newrequisition', (req, res) => {
+    const typeRequisition = req.body.type;
+    const barCode = req.body.barCode;
+    const quantity = req.body.quantity;
+    getProductByBarCode(barCode).then(r => {
+        if (r) {
+            writeFile(typeRequisition, barCode, quantity);
+            res.send({ result: true });
+        } else {
+            res.send({ result: false });
+        }
+    })
+});
+
+app.get('*', (req, res) => {
+    res.sendFile(path.resolve(__dirname, '../client/build', 'index.html'));
+});
+
+const httpsServer = https.createServer({
+    key: fs.readFileSync('selfsigned.key'),
+    cert: fs.readFileSync('selfsigned.crt')
+}, app);
+httpsServer.listen(port, () => console.log(`Listening on port ${port}`));

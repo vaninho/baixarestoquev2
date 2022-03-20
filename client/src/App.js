@@ -1,27 +1,15 @@
 import 'bootstrap/dist/css/bootstrap.min.css';
 import React from "react";
+import axios from "axios";
 import InputImageRadio from './UI/InputImageRadio';
 import InputText from "./UI/InputText";
 import Scanner from "./UI/Scanner";
 
 function App() {
 
-  const initialize = { barCodeInput: '', quantityInput: '', productInput: '', requisitionRadio: 'bakery' }
+  const initialize = { barCodeInput: '', quantityInput: '1', productInput: '', requisitionRadio: 'bakery' }
   const [inputValue, setInputValue] = React.useState(initialize)
   const { barCodeInput, quantityInput, productInput, requisitionRadio } = inputValue;
-  const [data, setData] = React.useState(null)
-
-  React.useEffect(() => {
-    fetch("/api")
-      .then((res) => {
-        console.log(res)
-        res.json()
-      })
-      .then((data) => {
-        setData(data.message)
-
-      });
-  }, []);
 
   const handleInputChange = (event) => {
     const { name, value } = event.target;
@@ -35,11 +23,19 @@ function App() {
   function handleSubmit(event) {
     event.preventDefault()
     console.log(`Cod: ${barCodeInput} - Produto: ${productInput} - Quantidade: ${quantityInput} - Requisicao: ${requisitionRadio}`)
+    axios.post('/newrequisition', { type: requisitionRadio, barCode: barCodeInput, quantity: quantityInput })
+        .then(response => {
+          if (response.data.result) {
+            alert('Produto ' + productInput + ' cadastrado com sucesso');
+            handleReset()
+          } else { alert('Produto nao encontado') }
+        }
+        );
     handleReset(event)
   }
 
   function handleFakeScanClick(event) {
-    changeInputByScanner('9788576842316')
+    changeInputByScanner('7896468830166')
   }
 
   function handleReset(event) {
@@ -47,19 +43,17 @@ function App() {
   }
 
   function handleBarCodeInputBlur(event) {
-    let value = ''
-    switch (event.target.value) {
-      case '123':
-        value = 'Produto teste'
-        break;
-      case '9788576842316':
-        value = 'Livro House'
-        break;
-    }
-    setInputValue((prev) => ({
-      ...prev,
-      productInput: value
-    }))
+    if (event.target.value === '') { return }
+    axios.get('/product/' + event.target.value).then(response => {
+      if (response.data.found) {
+        setInputValue((prev) => ({
+          ...prev,
+          productInput: response.data.desc
+        }))
+      } else {
+        alert('Produto nao encontrado, verificar codigo de barras');
+      }
+    });
   }
 
   const changeInputByScanner = (p) => {
@@ -93,7 +87,6 @@ function App() {
       </div>
       <button type="submit" className="btn btn-primary" style={{ margin: '5px' }}>Cadastrar</button>
       <button type="reset" className="btn btn-outline-secondary" onClick={handleReset} style={{ margin: '5px' }}>Limpar</button>
-      <p>{!data ? 'Loading..' : data}</p>
     </form>
   );
 }

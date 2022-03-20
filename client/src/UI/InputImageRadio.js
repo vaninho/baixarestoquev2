@@ -12,7 +12,7 @@ class InputImageRadio extends React.Component {
             <div className="requisition">
                 <label>
                     <input type="radio" id={this.props.id} name={this.props.name} value={this.props.value} checked={this.props.checked} onChange={this.props.onChange} />
-                    <img src={this.props.img} className="img-fluid" />
+                    <img src={this.props.img} className="img-fluid" alt={this.props.text}/>
                     <div>{this.props.text}</div>
                 </label>
             </div>
