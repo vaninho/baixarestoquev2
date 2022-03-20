@@ -40,6 +40,7 @@ class Scanner extends React.Component {
                 //TODO change the 
                 this.html5Qrcode.start(cameraId, { fps: 10, qrbox: { width: 200, height: 100 }, format: Html5QrcodeSupportedFormats.EAN_13 },
                     qrCodeSucessCallback, (errorMessage) => { })
+                document.getElementById('reader').scrollIntoView({ block: 'center' })
             }
         }).catch(error => { console.log(error) })
     }
@@ -47,8 +48,13 @@ class Scanner extends React.Component {
     render() {
         return (
             <>
-                <button type="button" onClick={this.handleCloseBarCodeScanner} style={{ display: this.state.isOpened ? 'inline' : 'none' }}>Cancelar</button>
-                <button type="button" onClick={this.handleOpenBarCodeScanner} className="btn btn-outline-secondary" style={{margin: '5px'}}>Ler código de barras</button>
+                <div className="full-screen" style={{ display: this.state.isOpened ? 'block' : 'none' }}>
+                    <div className="middle">
+                        <button type="button" onClick={this.handleCloseBarCodeScanner} style={{ display: this.state.isOpened ? 'block' : 'none' }} className="btn btn-primary">Cancelar</button>
+                    </div>
+                </div>
+                <button type="button" onClick={this.handleOpenBarCodeScanner} className="btn btn-outline-secondary" style={{ margin: '5px' }}>Ler código de barras</button>
+
             </>
         )
     }
