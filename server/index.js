@@ -11,7 +11,7 @@ const BLANK_SPACES = '       ';
 app.use(express.static(path.resolve(__dirname, '../client/build')));
 
 async function connect() {
-    const connectionString = 'postgresql://postgres:******@10.0.0.27:5432/LOGTEC';
+    const connectionString = 'postgresql://postgres:******@localhost:5432/LOGTEC';
     if (global.connection)
         return global.connection;
 
@@ -38,7 +38,7 @@ async function getProductByBarCode(id) {
     const values = [id];
     const result = await client.query(sql, values);
     if (result.rowCount > 0) {
-        return { [desc]: result.rows[0].des_produto, [value1]: result.rows[0].vlr_venda1 }
+        return { desc: result.rows[0].des_produto, value1: result.rows[0].vlr_venda1 }
     }
     return false;
 }
@@ -49,18 +49,18 @@ function writeFile(type, barCode, quantity) {
         line = ' ' + line;
     }
     line = line + BLANK_SPACES;
-    for (var i = Math.trunc(quantity) + ''.length; i < 6; i++) {
+    for (var i = (Math.trunc(quantity) + '').length; i < 6; i++) {
         line = line + '0';
     }
-    line = line + quantity + '\r\n';
+    //System use ,
+    line = line + (quantity + '').replace(".", ",") + '\r\n';
     fs.appendFile('D:/ArquivosLogtecRequisicoes/' + type + '.txt', line, (err) => { if (err) console.log('erro: ' + err + data) });
 }
 
 app.get('/product/:id', (req, res) => {
-    console.log('oi')
     const result = getProductByBarCode(req.params.id);
     result.then(r => {
-        res.send({ found: r ? true : false, desc: r, value: value1 });
+        res.send({ found: r ? true : false, desc: r.desc, value: r.value1 });
     }).catch(e => console.log(e));
 
 });
@@ -88,3 +88,4 @@ const httpsServer = https.createServer({
     cert: fs.readFileSync('selfsigned.crt')
 }, app);
 httpsServer.listen(port, () => console.log(`Listening on port ${port}`));
+// app.listen(port, () => {console.log(`Listening on ${port}`)})
