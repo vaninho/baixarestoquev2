@@ -21,8 +21,14 @@ function App() {
     console.log(generateKey)
   }
 
-  function removeProductAdded(productAdded) {
-    setProductsAdded(productsAdded.filter(i => i !== productAdded))
+  function removeProductAdded(product) {
+    console.log('remove product added')
+    console.log(product)
+    axios.delete('delrequisition', {data: {type: product.requisition, barCode: product.barCode, quantity: product.quantity}})
+    .then(response => {
+      console.log('chamou e voltou')
+      setProductsAdded(productsAdded.filter(i => i !== product))
+    })
     //TODO Fazer o backend remover do arquivo texto
   }
 
