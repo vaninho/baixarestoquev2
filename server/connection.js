@@ -21,4 +21,4 @@ async function connect() {
     return pool.connect();
 }
 
-module.exports.connect = conne
+module.exports.connect = connect

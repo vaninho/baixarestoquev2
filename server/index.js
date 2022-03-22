@@ -52,23 +52,16 @@ app.post('/newrequisition', (req, res) => {
 });
 
 app.delete('/delrequisition', (req, res) => {
-    console.log('delrequisition')
     const typeRequisition = req.body.type
     const barCode = req.body.barCode
     const quantity = req.body.quantity
     const line = createLine(barCode, quantity)
-    fs.readFile(FILEPATH + typeRequisition + FILE_EXTENSION, 'utf-8', (err, data) => {
-        if (err) {
-            console.log(err)
-            return
-        }
-        t = data.split('\n')
-        t.forEach(element => {
-            console.log(element)
-        });
-    })
-
+    data = fs.readFileSync(FILEPATH + typeRequisition + FILE_EXTENSION, 'utf-8')
+    data = data.replace(line, '')
+    fs.writeFileSync(FILEPATH + typeRequisition + FILE_EXTENSION, data, 'utf-8')
+    res.send({ result: true })
 })
+
 
 app.get('*', (req, res) => {
     res.sendFile(path.resolve(__dirname, '../client/build', 'index.html'))
@@ -88,9 +81,11 @@ function createLine(barCode, quantity) {
     return line
 }
 
-// const httpsServer = https.createServer({
-//     key: fs.readFileSync('selfsigned.key'),
-//     cert: fs.readFileSync('selfsigned.crt')
-// }, app)
-// httpsServer.listen(port, () => console.log(`Listening on port ${port}`))
-app.listen(port, () => { console.log(`Listening on ${port}`) })
+const httpsServer = https.createServer({
+    key: fs.readFileSync('selfsigned.key'),
+    cert: fs.readFileSync('selfsigned.crt')
+}, app)
+httpsServer.listen(port, () => console.log(`Listening on port ${port}`))
+
+// used on dev.
+// app.listen(port, () => { console.log(`Listening on ${port}`) })

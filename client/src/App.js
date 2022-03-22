@@ -24,12 +24,10 @@ function App() {
   function removeProductAdded(product) {
     console.log('remove product added')
     console.log(product)
-    axios.delete('delrequisition', {data: {type: product.requisition, barCode: product.barCode, quantity: product.quantity}})
-    .then(response => {
-      console.log('chamou e voltou')
-      setProductsAdded(productsAdded.filter(i => i !== product))
-    })
-    //TODO Fazer o backend remover do arquivo texto
+    axios.delete('delrequisition', { data: { type: product.requisition, barCode: product.barCode, quantity: product.quantity } })
+      .then(response => {
+        setProductsAdded(productsAdded.filter(i => i !== product))
+      })
   }
 
   const handleInputChange = (event) => {
@@ -43,7 +41,6 @@ function App() {
 
   function handleSubmit(event) {
     event.preventDefault()
-    console.log(`Cod: ${barCodeInput} - Produto: ${productInput} - Quantidade: ${quantityInput} - Requisicao: ${requisitionRadio}`)
     axios.post('/newrequisition', { type: requisitionRadio, barCode: barCodeInput, quantity: quantityInput })
       .then(response => {
         if (response.data.result) {
@@ -106,7 +103,7 @@ function App() {
       <form onSubmit={handleSubmit}>
         <div>
           <Scanner output={changeInputByScanner} />
-          <button type="button" onClick={handleFakeScanClick} className="btn btn-outline-secondary">Fake Scan</button>
+          {/* <button type="button" onClick={handleFakeScanClick} className="btn btn-outline-secondary">Fake Scan</button> */}
         </div>
         <InputText label='Código de barras:' id='barCodeInput' name='barCodeInput' value={barCodeInput} onChange={handleInputChange} onBlur={handleBarCodeInputBlur} />
         <div>
@@ -151,15 +148,6 @@ function App() {
         </tbody>
 
       </table>}
-
-      {/* <ul style={{ listStyle: 'none', paddingLeft: 0 }}>
-        {productsAdded && productsAdded.map(productAdded => (
-          <li key={productAdded.id}>
-            <span>{} - {productAdded.barCode} - {productAdded.quantity} - {productAdded.requisition} </span>
-            
-          </li>
-        ))}
-      </ul> */}
     </div>
   );
 }
